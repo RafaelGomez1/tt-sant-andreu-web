@@ -22,27 +22,6 @@ export function BookingTable({ agenda, onAddBooking, onDeleteBooking }: BookingT
   const isDisabled = agenda.availableHours.length === 0;
   const isPast = isPastAgenda(agenda.day.number, agenda.month, agenda.year);
 
-  const renderActionButtons = (hourId: string, isFull: boolean, playersCount: number) => {
-    return (
-      <div className="flex space-x-2">
-        <button
-          onClick={() => onAddBooking(agenda.id, hourId)}
-          disabled={isFull || isPast}
-          className="inline-flex items-center p-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <UserPlus className="w-5 h-5" />
-        </button>
-        <button
-          onClick={() => onDeleteBooking(agenda.id, hourId)}
-          disabled={playersCount === 0 || isPast}
-          className="inline-flex items-center p-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <UserMinus className="w-5 h-5" />
-        </button>
-      </div>
-    );
-  };
-
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
       <div className="p-4 border-b dark:border-gray-700 text-center">
@@ -60,16 +39,16 @@ export function BookingTable({ agenda, onAddBooking, onDeleteBooking }: BookingT
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Horas
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-4 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Jugadores
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Acciones
                 </th>
               </tr>
@@ -79,24 +58,40 @@ export function BookingTable({ agenda, onAddBooking, onDeleteBooking }: BookingT
                 const startTime = formatTime(hour.from);
                 const endTime = formatTime(hour.to);
                 const isFull = isSlotFull(hour);
+                const playersCount = hour.registeredPlayers?.length || 0;
 
                 return (
                   <tr key={hour.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
                       {startTime} - {endTime}
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-wrap gap-2 justify-center">
+                    <td className="px-4 sm:px-6 py-4">
+                      <div className="flex flex-wrap gap-1 sm:gap-2 justify-center">
                         {hour.registeredPlayers?.map((player, index) => (
                           <PlayerBadge key={`${player.name}-${index}`} name={player.name} />
                         ))}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap">
                       <StatusBadge status={isFull ? 'full' : 'available'} />
                     </td>
-                    <td className="px-6 py-4">
-                      {renderActionButtons(hour.id, isFull, hour.registeredPlayers?.length || 0)}
+                    <td className="px-4 sm:px-6 py-4">
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => onAddBooking(agenda.id, hour.id)}
+                          disabled={isFull || isPast}
+                          className="p-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <UserPlus className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => onDeleteBooking(agenda.id, hour.id)}
+                          disabled={playersCount === 0 || isPast}
+                          className="p-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <UserMinus className="w-5 h-5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
