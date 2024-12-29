@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
+import { useViewportHeight } from '../hooks/useViewportHeight';
 
 interface AddBookingModalProps {
   isOpen: boolean;
@@ -13,8 +14,8 @@ export function AddBookingModal({
   onAddBooking,
 }: AddBookingModalProps) {
   const [playerName, setPlayerName] = useState('');
-
-  if (!isOpen) return null;
+  const modalRef = useRef<HTMLDivElement>(null);
+  const viewportHeight = useViewportHeight();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,9 +26,27 @@ export function AddBookingModal({
     }
   };
 
+  // Scroll modal into view when keyboard appears
+  useEffect(() => {
+    if (isOpen) {
+      const timeoutId = setTimeout(() => {
+        modalRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }, 100);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isOpen, viewportHeight]);
+
+  if (!isOpen) return null;
+
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="min-h-screen px-4 text-center">
+    <div 
+      className="fixed inset-0 z-50 overflow-y-auto"
+      style={{ height: viewportHeight }}
+    >
+      <div className="min-h-full px-4 text-center">
         {/* Background overlay */}
         <div 
           className="fixed inset-0 transition-opacity bg-gray-500 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-75" 
@@ -38,7 +57,10 @@ export function AddBookingModal({
         <span className="inline-block h-screen align-middle" aria-hidden="true">&#8203;</span>
 
         {/* Modal */}
-        <div className="inline-block w-full max-w-md p-6 my-8 text-left align-middle transition-all transform bg-white dark:bg-gray-800 rounded-lg shadow-xl relative">
+        <div 
+          ref={modalRef}
+          className="inline-block w-full max-w-md p-6 my-4 text-left align-middle transition-all transform bg-white dark:bg-gray-800 rounded-lg shadow-xl relative"
+        >
           <div className="absolute top-0 right-0 pt-4 pr-4">
             <button
               onClick={onClose}
