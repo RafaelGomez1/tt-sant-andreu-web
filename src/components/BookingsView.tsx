@@ -14,6 +14,7 @@ export function BookingsView() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  
   const handleAddBooking = async (playerName: string) => {
     if (!selectedSlot) return;
 
