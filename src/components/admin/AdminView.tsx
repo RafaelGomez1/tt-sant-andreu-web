@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { ArrowLeft } from 'lucide-react';
 import { LoginForm } from './LoginForm';
 import { AdminDashboard } from './AdminDashboard';
+import { AdminMenu, AdminSection } from './AdminMenu';
+import { MembersManagement } from './members/MembersManagement';
 import { useAuth } from '../../hooks/useAuth';
 
 export function AdminView() {
   const { accessKey, login, logout, loading, error } = useAuth();
+  const [section, setSection] = useState<AdminSection>('menu');
 
   // Force logout when component mounts
   React.useEffect(() => {
@@ -19,17 +23,33 @@ export function AdminView() {
     );
   }
 
+  const handleBack = () => setSection('menu');
+
   return (
     <div>
-      <div className="mb-6 flex justify-end">
-        <button
-          onClick={logout}
-          className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-        >
-          Cerrar sesión
-        </button>
+      <div className="mb-6 flex justify-between items-center">
+        {section !== 'menu' && (
+          <button
+            onClick={handleBack}
+            className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+          >
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            Volver
+          </button>
+        )}
+        <div className="ml-auto">
+          <button
+            onClick={logout}
+            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+          >
+            Cerrar sesión
+          </button>
+        </div>
       </div>
-      <AdminDashboard accessKey={accessKey} />
+
+      {section === 'menu' && <AdminMenu onNavigate={setSection} />}
+      {section === 'bookings' && <AdminDashboard accessKey={accessKey} />}
+      {section === 'members' && <MembersManagement />}
     </div>
   );
 }
