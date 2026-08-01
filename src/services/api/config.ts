@@ -1,5 +1,5 @@
 // API configuration
-export const API_BASE_URL = 'https://www.tt-sant-andreu.online/api';
+export const API_BASE_URL = 'https://backend-odrp2.ondigitalocean.app';
 
 export const API_CONFIG = {
   headers: {
