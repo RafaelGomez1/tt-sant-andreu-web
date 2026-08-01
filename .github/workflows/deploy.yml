@@ -37,28 +37,3 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/ttsa-web:latest
-
-      - name: Deploy to DigitalOcean Droplet
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.DIGITALOCEAN_DROPLET_IP }}
-          username: ${{ secrets.DIGITALOCEAN_DROPLET_USERNAME }}
-          password: ${{ secrets.DIGITALOCEAN_DROPLET_PASSWORD }}
-          debug: true
-          script: |
-            # Pull the latest image
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/ttsa-web:latest
-
-            # Stop and remove the existing container if it exists
-            docker stop ttsa-web || true
-            docker rm ttsa-web || true
-
-            # Run the new container
-            docker run -d \
-              --name ttsa-web \
-              --restart unless-stopped \
-              -p 90:80 \
-              ${{ secrets.DOCKERHUB_USERNAME }}/ttsa-web:latest
-
-            # Clean up old images
-            docker image prune -f
