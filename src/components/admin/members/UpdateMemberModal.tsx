@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { X, Plus, Trash2 } from 'lucide-react';
-import { MemberType, AcademyGroup, Team, MemberRequest, registerMember } from '../../../services/api/members';
+import { X } from 'lucide-react';
+import { Member, MemberType, AcademyGroup, Team, MemberRequest, updateMember } from '../../../services/api/members';
 
-interface CreateMemberModalProps {
+interface UpdateMemberModalProps {
+  member: Member;
   onClose: () => void;
-  onCreated: () => void;
+  onUpdated: () => void;
 }
 
 const MEMBER_TYPE_LABELS: Record<MemberType, string> = {
@@ -26,17 +27,17 @@ const TEAM_LABELS: Record<Team, string> = {
   THREE_B: '3a B',
 };
 
-function generateId(): string {
-  return crypto.randomUUID();
-}
-
-export function CreateMemberModal({ onClose, onCreated }: CreateMemberModalProps) {
-  const [name, setName] = useState('');
-  const [surname, setSurname] = useState('');
-  const [phoneNumbers, setPhoneNumbers] = useState<string[]>(['']);
-  const [type, setType] = useState<MemberType>('CASUAL');
-  const [academyGroup, setAcademyGroup] = useState<AcademyGroup | ''>('');
-  const [team, setTeam] = useState<Team | ''>('');
+export function UpdateMemberModal({ member, onClose, onUpdated }: UpdateMemberModalProps) {
+  const [name, setName] = useState(member.name);
+  const [surname, setSurname] = useState(member.surname);
+  const [phoneNumbers, setPhoneNumbers] = useState<string[]>(
+    Array.isArray(member.phoneNumbers) && member.phoneNumbers.length > 0
+      ? member.phoneNumbers
+      : ['']
+  );
+  const [type, setType] = useState<MemberType>(member.type);
+  const [academyGroup, setAcademyGroup] = useState<AcademyGroup | ''>(member.academyGroup ?? '');
+  const [team, setTeam] = useState<Team | ''>(member.team ?? '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -74,11 +75,11 @@ export function CreateMemberModal({ onClose, onCreated }: CreateMemberModalProps
 
     try {
       setLoading(true);
-      await registerMember(generateId(), body);
-      onCreated();
+      await updateMember(member.id, body);
+      onUpdated();
     } catch (err) {
-      console.error('Error creating member:', err);
-      setError('Error al crear el socio. Por favor, inténtalo de nuevo.');
+      console.error('Error updating member:', err);
+      setError('Error al actualizar el socio. Por favor, inténtalo de nuevo.');
     } finally {
       setLoading(false);
     }
@@ -90,7 +91,7 @@ export function CreateMemberModal({ onClose, onCreated }: CreateMemberModalProps
       <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Nuevo Socio
+            Editar Socio
           </h3>
           <button
             onClick={onClose}
@@ -153,7 +154,7 @@ export function CreateMemberModal({ onClose, onCreated }: CreateMemberModalProps
                       onClick={() => handleRemovePhone(index)}
                       className="p-2 text-red-500 hover:text-red-700"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <X className="w-4 h-4" />
                     </button>
                   )}
                 </div>
@@ -163,8 +164,7 @@ export function CreateMemberModal({ onClose, onCreated }: CreateMemberModalProps
                 onClick={handleAddPhone}
                 className="inline-flex items-center text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
               >
-                <Plus className="w-4 h-4 mr-1" />
-                Añadir teléfono
+                + Añadir teléfono
               </button>
             </div>
           </div>
@@ -244,7 +244,7 @@ export function CreateMemberModal({ onClose, onCreated }: CreateMemberModalProps
               disabled={loading}
               className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
             >
-              {loading ? 'Creando...' : 'Crear socio'}
+              {loading ? 'Guardando...' : 'Guardar cambios'}
             </button>
           </div>
         </form>

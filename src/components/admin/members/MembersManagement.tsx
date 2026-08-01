@@ -3,8 +3,10 @@ import { UserPlus } from 'lucide-react';
 import { MembersFilters } from './MembersFilters';
 import { MembersTable } from './MembersTable';
 import { CreateMemberModal } from './CreateMemberModal';
+import { UpdateMemberModal } from './UpdateMemberModal';
+import { DeleteMemberModal } from './DeleteMemberModal';
 import { useMembers } from '../../../hooks/useMembers';
-import { MemberType } from '../../../services/api/members';
+import { Member, MemberType } from '../../../services/api/members';
 import { ErrorAlert } from '../../ui/ErrorAlert';
 
 const PAGE_SIZE = 10;
@@ -14,6 +16,8 @@ export function MembersManagement() {
   const [searchText, setSearchText] = useState('');
   const [page, setPage] = useState(0);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingMember, setEditingMember] = useState<Member | null>(null);
+  const [deletingMember, setDeletingMember] = useState<Member | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const { members, totalPages, totalElements, currentPage, loading, error } = useMembers({
@@ -33,10 +37,24 @@ export function MembersManagement() {
     setSearchText(text);
   };
 
-  const handleMemberCreated = useCallback(() => {
-    setShowCreateModal(false);
+  const refresh = useCallback(() => {
     setRefreshKey((k) => k + 1);
   }, []);
+
+  const handleMemberCreated = useCallback(() => {
+    setShowCreateModal(false);
+    refresh();
+  }, [refresh]);
+
+  const handleMemberUpdated = useCallback(() => {
+    setEditingMember(null);
+    refresh();
+  }, [refresh]);
+
+  const handleMemberDeleted = useCallback(() => {
+    setDeletingMember(null);
+    refresh();
+  }, [refresh]);
 
   return (
     <div className="space-y-4">
@@ -69,12 +87,30 @@ export function MembersManagement() {
         totalElements={totalElements}
         onPageChange={setPage}
         loading={loading}
+        onEdit={setEditingMember}
+        onDelete={setDeletingMember}
       />
 
       {showCreateModal && (
         <CreateMemberModal
           onClose={() => setShowCreateModal(false)}
           onCreated={handleMemberCreated}
+        />
+      )}
+
+      {editingMember && (
+        <UpdateMemberModal
+          member={editingMember}
+          onClose={() => setEditingMember(null)}
+          onUpdated={handleMemberUpdated}
+        />
+      )}
+
+      {deletingMember && (
+        <DeleteMemberModal
+          member={deletingMember}
+          onClose={() => setDeletingMember(null)}
+          onDeleted={handleMemberDeleted}
         />
       )}
     </div>

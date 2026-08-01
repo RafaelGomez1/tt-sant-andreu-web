@@ -11,9 +11,9 @@ interface MembersFiltersProps {
 
 const MEMBER_TYPE_LABELS: Record<MemberType, string> = {
   CASUAL: 'Casual',
-  ACADEMY_BEGINNER: 'Academia - Iniciación',
-  ACADEMY_INTERMEDIATE: 'Academia - Intermedio',
-  COMPETITION: 'Competición',
+  ACADEMY_BEGINNER: 'Iniciación',
+  ACADEMY_INTERMEDIATE: 'Tecnificación',
+  COMPETITION: 'Federado',
 };
 
 export function MembersFilters({

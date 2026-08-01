@@ -1,5 +1,5 @@
-import React from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { ChevronLeft, ChevronRight, MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import { Member, MemberType, AcademyGroup, Team } from '../../../services/api/members';
 
 interface MembersTableProps {
@@ -9,13 +9,22 @@ interface MembersTableProps {
   totalElements: number;
   onPageChange: (page: number) => void;
   loading: boolean;
+  onEdit: (member: Member) => void;
+  onDelete: (member: Member) => void;
 }
 
 const TYPE_LABELS: Record<MemberType, string> = {
   CASUAL: 'Casual',
-  ACADEMY_BEGINNER: 'Academia - Iniciación',
-  ACADEMY_INTERMEDIATE: 'Academia - Intermedio',
-  COMPETITION: 'Competición',
+  ACADEMY_BEGINNER: 'Iniciación',
+  ACADEMY_INTERMEDIATE: 'Tecnificación',
+  COMPETITION: 'Federado',
+};
+
+const TYPE_COLORS: Record<MemberType, string> = {
+  CASUAL: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
+  ACADEMY_BEGINNER: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+  ACADEMY_INTERMEDIATE: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
+  COMPETITION: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
 };
 
 const GROUP_LABELS: Record<AcademyGroup, string> = {
@@ -26,8 +35,13 @@ const GROUP_LABELS: Record<AcademyGroup, string> = {
 };
 
 const TEAM_LABELS: Record<Team, string> = {
-  TWO_A: '2a División',
-  THREE_B: '3a División B',
+  TWO_A: '2a A',
+  THREE_B: '3a B',
+};
+
+const TEAM_COLORS: Record<Team, string> = {
+  TWO_A: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400',
+  THREE_B: 'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-400',
 };
 
 export function MembersTable({
@@ -37,7 +51,21 @@ export function MembersTable({
   totalElements,
   onPageChange,
   loading,
+  onEdit,
+  onDelete,
 }: MembersTableProps) {
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpenMenuId(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
   if (loading) {
     return (
       <div className="flex justify-center py-12">
@@ -78,6 +106,8 @@ export function MembersTable({
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden md:table-cell">
                 Equipo
               </th>
+              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-12">
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -89,8 +119,10 @@ export function MembersTable({
                 <td className="px-4 py-3 text-sm text-gray-900 dark:text-white whitespace-nowrap">
                   {member.surname}
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap">
-                  {TYPE_LABELS[member.type]}
+                <td className="px-4 py-3 text-sm whitespace-nowrap">
+                  <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${TYPE_COLORS[member.type]}`}>
+                    {TYPE_LABELS[member.type]}
+                  </span>
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap hidden sm:table-cell">
                   {Array.isArray(member.phoneNumbers) ? member.phoneNumbers.join(', ') : '—'}
@@ -98,8 +130,47 @@ export function MembersTable({
                 <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap hidden md:table-cell">
                   {member.academyGroup ? GROUP_LABELS[member.academyGroup] : '—'}
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap hidden md:table-cell">
-                  {member.team ? TEAM_LABELS[member.team] : '—'}
+                <td className="px-4 py-3 text-sm whitespace-nowrap hidden md:table-cell">
+                  {member.team ? (
+                    <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${TEAM_COLORS[member.team]}`}>
+                      {TEAM_LABELS[member.team]}
+                    </span>
+                  ) : '—'}
+                </td>
+                <td className="px-4 py-3 text-sm whitespace-nowrap text-right relative">
+                  <button
+                    onClick={() => setOpenMenuId(openMenuId === member.id ? null : member.id)}
+                    className="p-1 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    <MoreVertical className="w-4 h-4" />
+                  </button>
+                  {openMenuId === member.id && (
+                    <div
+                      ref={menuRef}
+                      className="absolute right-8 top-2 z-10 w-44 bg-white dark:bg-gray-700 rounded-md shadow-lg ring-1 ring-black/5 dark:ring-white/10"
+                    >
+                      <button
+                        onClick={() => {
+                          setOpenMenuId(null);
+                          onEdit(member);
+                        }}
+                        className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-t-md"
+                      >
+                        <Pencil className="w-4 h-4 mr-2" />
+                        Editar info
+                      </button>
+                      <button
+                        onClick={() => {
+                          setOpenMenuId(null);
+                          onDelete(member);
+                        }}
+                        className="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-b-md"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Eliminar socio
+                      </button>
+                    </div>
+                  )}
                 </td>
               </tr>
             ))}
