@@ -6,15 +6,18 @@ import { CreateMemberModal } from './CreateMemberModal';
 import { UpdateMemberModal } from './UpdateMemberModal';
 import { DeleteMemberModal } from './DeleteMemberModal';
 import { useMembers } from '../../../hooks/useMembers';
-import { Member, MemberType } from '../../../services/api/members';
+import { Member, MemberType, AcademyGroup, Team } from '../../../services/api/members';
 import { ErrorAlert } from '../../ui/ErrorAlert';
 
-const PAGE_SIZE = 10;
+const DEFAULT_PAGE_SIZE = 20;
 
 export function MembersManagement() {
   const [selectedType, setSelectedType] = useState<MemberType | undefined>(undefined);
+  const [selectedGroup, setSelectedGroup] = useState<AcademyGroup | undefined>(undefined);
+  const [selectedTeam, setSelectedTeam] = useState<Team | undefined>(undefined);
   const [searchText, setSearchText] = useState('');
   const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingMember, setEditingMember] = useState<Member | null>(null);
   const [deletingMember, setDeletingMember] = useState<Member | null>(null);
@@ -23,13 +26,28 @@ export function MembersManagement() {
   const { members, totalPages, totalElements, currentPage, loading, error } = useMembers({
     type: selectedType,
     page,
-    size: PAGE_SIZE,
+    size: pageSize,
     searchText,
+    academyGroup: selectedGroup,
+    team: selectedTeam,
     refreshKey,
   });
 
   const handleTypeChange = (type: MemberType | undefined) => {
     setSelectedType(type);
+    setPage(0);
+  };
+
+  const handleGroupChange = (group: AcademyGroup | undefined) => {
+    setSelectedGroup(group);
+  };
+
+  const handleTeamChange = (team: Team | undefined) => {
+    setSelectedTeam(team);
+  };
+
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
     setPage(0);
   };
 
@@ -76,6 +94,10 @@ export function MembersManagement() {
       <MembersFilters
         selectedType={selectedType}
         onTypeChange={handleTypeChange}
+        selectedGroup={selectedGroup}
+        onGroupChange={handleGroupChange}
+        selectedTeam={selectedTeam}
+        onTeamChange={handleTeamChange}
         searchText={searchText}
         onSearchChange={handleSearchChange}
       />
@@ -85,6 +107,8 @@ export function MembersManagement() {
         currentPage={currentPage}
         totalPages={totalPages}
         totalElements={totalElements}
+        pageSize={pageSize}
+        onPageSizeChange={handlePageSizeChange}
         onPageChange={setPage}
         loading={loading}
         onEdit={setEditingMember}

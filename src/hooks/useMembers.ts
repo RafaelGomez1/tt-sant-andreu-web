@@ -1,15 +1,17 @@
 import { useState, useEffect, useMemo } from 'react';
-import { searchMembers, MembersPage, MemberType, Member } from '../services/api/members';
+import { searchMembers, MembersPage, MemberType, AcademyGroup, Team, Member } from '../services/api/members';
 
 interface UseMembersParams {
   type?: MemberType;
   page: number;
   size: number;
   searchText: string;
+  academyGroup?: AcademyGroup;
+  team?: Team;
   refreshKey?: number;
 }
 
-export function useMembers({ type, page, size, searchText, refreshKey }: UseMembersParams) {
+export function useMembers({ type, page, size, searchText, academyGroup, team, refreshKey }: UseMembersParams) {
   const [data, setData] = useState<MembersPage | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,15 +48,27 @@ export function useMembers({ type, page, size, searchText, refreshKey }: UseMemb
 
   const filteredContent: Member[] = useMemo(() => {
     if (!data) return [];
-    if (!searchText.trim()) return data.content;
+    let results = data.content;
 
-    const lowerSearch = searchText.toLowerCase().trim();
-    return data.content.filter(
-      (member) =>
-        member.name.toLowerCase().includes(lowerSearch) ||
-        member.surname.toLowerCase().includes(lowerSearch)
-    );
-  }, [data, searchText]);
+    if (searchText.trim()) {
+      const lowerSearch = searchText.toLowerCase().trim();
+      results = results.filter(
+        (member) =>
+          member.name.toLowerCase().includes(lowerSearch) ||
+          member.surname.toLowerCase().includes(lowerSearch)
+      );
+    }
+
+    if (academyGroup) {
+      results = results.filter((member) => member.academyGroup === academyGroup);
+    }
+
+    if (team) {
+      results = results.filter((member) => member.team === team);
+    }
+
+    return results;
+  }, [data, searchText, academyGroup, team]);
 
   return {
     members: filteredContent,

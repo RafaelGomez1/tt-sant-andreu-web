@@ -32,7 +32,11 @@ export function UpdateMemberModal({ member, onClose, onUpdated }: UpdateMemberMo
   const [surname, setSurname] = useState(member.surname);
   const [phoneNumbers, setPhoneNumbers] = useState<string[]>(
     Array.isArray(member.phoneNumbers) && member.phoneNumbers.length > 0
-      ? member.phoneNumbers
+      ? member.phoneNumbers.map((p) => {
+          const digits = p.replace(/\D/g, '').slice(0, 9);
+          const parts = [digits.slice(0, 3), digits.slice(3, 5), digits.slice(5, 7), digits.slice(7, 9)];
+          return parts.filter(Boolean).join(' ');
+        })
       : ['']
   );
   const [type, setType] = useState<MemberType>(member.type);
@@ -44,6 +48,12 @@ export function UpdateMemberModal({ member, onClose, onUpdated }: UpdateMemberMo
   const isAcademyBeginnerType = type === 'ACADEMY_BEGINNER';
   const isCompetitionType = type === 'COMPETITION';
 
+  const formatPhone = (value: string): string => {
+    const digits = value.replace(/\D/g, '').slice(0, 9);
+    const parts = [digits.slice(0, 3), digits.slice(3, 5), digits.slice(5, 7), digits.slice(7, 9)];
+    return parts.filter(Boolean).join(' ');
+  };
+
   const handleAddPhone = () => {
     setPhoneNumbers([...phoneNumbers, '']);
   };
@@ -54,7 +64,7 @@ export function UpdateMemberModal({ member, onClose, onUpdated }: UpdateMemberMo
 
   const handlePhoneChange = (index: number, value: string) => {
     const updated = [...phoneNumbers];
-    updated[index] = value;
+    updated[index] = formatPhone(value);
     setPhoneNumbers(updated);
   };
 
@@ -62,7 +72,8 @@ export function UpdateMemberModal({ member, onClose, onUpdated }: UpdateMemberMo
     e.preventDefault();
     setError(null);
 
-    const filteredPhones = phoneNumbers.filter((p) => p.trim() !== '');
+    const filteredPhones = phoneNumbers
+      .filter((p) => p.trim() !== '');
 
     const body: MemberRequest = {
       name: name.trim(),

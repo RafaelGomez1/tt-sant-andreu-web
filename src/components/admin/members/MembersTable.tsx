@@ -7,11 +7,15 @@ interface MembersTableProps {
   currentPage: number;
   totalPages: number;
   totalElements: number;
+  pageSize: number;
+  onPageSizeChange: (size: number) => void;
   onPageChange: (page: number) => void;
   loading: boolean;
   onEdit: (member: Member) => void;
   onDelete: (member: Member) => void;
 }
+
+const PAGE_SIZE_OPTIONS = [10, 20, 50];
 
 const TYPE_LABELS: Record<MemberType, string> = {
   CASUAL: 'Casual',
@@ -49,6 +53,8 @@ export function MembersTable({
   currentPage,
   totalPages,
   totalElements,
+  pageSize,
+  onPageSizeChange,
   onPageChange,
   loading,
   onEdit,
@@ -179,10 +185,26 @@ export function MembersTable({
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between px-2">
-        <span className="text-sm text-gray-600 dark:text-gray-400">
-          {totalElements} socio{totalElements !== 1 ? 's' : ''} en total
-        </span>
+      <div className="flex items-center justify-between px-2 flex-wrap gap-4">
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-gray-600 dark:text-gray-400">
+            {totalElements} socio{totalElements !== 1 ? 's' : ''} en total
+          </span>
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-gray-600 dark:text-gray-400">Mostrar:</label>
+            <select
+              value={pageSize}
+              onChange={(e) => onPageSizeChange(Number(e.target.value))}
+              className="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {PAGE_SIZE_OPTIONS.map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => onPageChange(currentPage - 1)}

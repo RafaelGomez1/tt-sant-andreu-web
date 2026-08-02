@@ -43,6 +43,12 @@ export function CreateMemberModal({ onClose, onCreated }: CreateMemberModalProps
   const isAcademyBeginnerType = type === 'ACADEMY_BEGINNER';
   const isCompetitionType = type === 'COMPETITION';
 
+  const formatPhone = (value: string): string => {
+    const digits = value.replace(/\D/g, '').slice(0, 9);
+    const parts = [digits.slice(0, 3), digits.slice(3, 5), digits.slice(5, 7), digits.slice(7, 9)];
+    return parts.filter(Boolean).join(' ');
+  };
+
   const handleAddPhone = () => {
     setPhoneNumbers([...phoneNumbers, '']);
   };
@@ -53,7 +59,7 @@ export function CreateMemberModal({ onClose, onCreated }: CreateMemberModalProps
 
   const handlePhoneChange = (index: number, value: string) => {
     const updated = [...phoneNumbers];
-    updated[index] = value;
+    updated[index] = formatPhone(value);
     setPhoneNumbers(updated);
   };
 
@@ -61,7 +67,8 @@ export function CreateMemberModal({ onClose, onCreated }: CreateMemberModalProps
     e.preventDefault();
     setError(null);
 
-    const filteredPhones = phoneNumbers.filter((p) => p.trim() !== '');
+    const filteredPhones = phoneNumbers
+      .filter((p) => p.trim() !== '');
 
     const body: MemberRequest = {
       name: name.trim(),
