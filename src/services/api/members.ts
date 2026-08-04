@@ -9,6 +9,8 @@ export type AcademyGroup = 'MONDAY_6_7' | 'MONDAY_7_8' | 'WEDNESDAY_6_7' | 'WEDN
 
 export type Team = 'TWO_A' | 'THREE_B';
 
+export type AgeGroup = 'KIDS' | 'SENIORS' | 'RETIRED';
+
 export interface Member {
   id: string;
   name: string;
@@ -17,6 +19,15 @@ export interface Member {
   type: MemberType;
   academyGroup: AcademyGroup | null;
   team: Team | null;
+  idNumber: string | null;
+  address: string | null;
+  city: string | null;
+  postalCode: string | null;
+  dateOfBirth: string | null;
+  email: string | null;
+  memberSince: string | null;
+  age: number | null;
+  ageGroup: AgeGroup | null;
 }
 
 export interface MemberRequest {
@@ -26,6 +37,13 @@ export interface MemberRequest {
   type: MemberType;
   academyGroup?: AcademyGroup;
   team?: Team;
+  idNumber?: string;
+  address?: string;
+  city?: string;
+  postalCode?: string;
+  dateOfBirth?: string;
+  email?: string;
+  memberSince?: string;
 }
 
 export interface MembersPage {

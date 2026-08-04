@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, MoreVertical, Pencil, Trash2 } from 'lucide-react';
-import { Member, MemberType, AcademyGroup, Team } from '../../../services/api/members';
+import { Member, MemberType, AcademyGroup, Team, AgeGroup } from '../../../services/api/members';
 
 interface MembersTableProps {
   members: Member[];
@@ -46,6 +46,18 @@ const TEAM_LABELS: Record<Team, string> = {
 const TEAM_COLORS: Record<Team, string> = {
   TWO_A: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400',
   THREE_B: 'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-400',
+};
+
+const AGE_GROUP_LABELS: Record<AgeGroup, string> = {
+  KIDS: 'Infantil',
+  SENIORS: 'Adulto',
+  RETIRED: 'Veterano',
+};
+
+const AGE_GROUP_COLORS: Record<AgeGroup, string> = {
+  KIDS: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+  SENIORS: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+  RETIRED: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400',
 };
 
 export function MembersTable({
@@ -112,6 +124,12 @@ export function MembersTable({
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden md:table-cell">
                 Equipo
               </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden lg:table-cell">
+                Email
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden lg:table-cell">
+                Edad
+              </th>
               <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-12">
               </th>
             </tr>
@@ -140,6 +158,16 @@ export function MembersTable({
                   {member.team ? (
                     <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${TEAM_COLORS[member.team]}`}>
                       {TEAM_LABELS[member.team]}
+                    </span>
+                  ) : '—'}
+                </td>
+                <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap hidden lg:table-cell">
+                  {member.email ?? '—'}
+                </td>
+                <td className="px-4 py-3 text-sm whitespace-nowrap hidden lg:table-cell">
+                  {member.ageGroup ? (
+                    <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${AGE_GROUP_COLORS[member.ageGroup]}`}>
+                      {AGE_GROUP_LABELS[member.ageGroup]}
                     </span>
                   ) : '—'}
                 </td>

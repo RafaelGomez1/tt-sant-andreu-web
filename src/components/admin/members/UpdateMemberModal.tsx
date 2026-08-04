@@ -42,6 +42,13 @@ export function UpdateMemberModal({ member, onClose, onUpdated }: UpdateMemberMo
   const [type, setType] = useState<MemberType>(member.type);
   const [academyGroup, setAcademyGroup] = useState<AcademyGroup | ''>(member.academyGroup ?? '');
   const [team, setTeam] = useState<Team | ''>(member.team ?? '');
+  const [idNumber, setIdNumber] = useState(member.idNumber ?? '');
+  const [address, setAddress] = useState(member.address ?? '');
+  const [city, setCity] = useState(member.city ?? '');
+  const [postalCode, setPostalCode] = useState(member.postalCode ?? '');
+  const [dateOfBirth, setDateOfBirth] = useState(member.dateOfBirth ?? '');
+  const [email, setEmail] = useState(member.email ?? '');
+  const [memberSince, setMemberSince] = useState(member.memberSince ?? '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -82,6 +89,13 @@ export function UpdateMemberModal({ member, onClose, onUpdated }: UpdateMemberMo
       type,
       ...(isAcademyBeginnerType && academyGroup ? { academyGroup: academyGroup as AcademyGroup } : {}),
       ...(isCompetitionType && team ? { team: team as Team } : {}),
+      ...(idNumber.trim() ? { idNumber: idNumber.trim() } : {}),
+      ...(address.trim() ? { address: address.trim() } : {}),
+      ...(city.trim() ? { city: city.trim() } : {}),
+      ...(postalCode.trim() ? { postalCode: postalCode.trim() } : {}),
+      ...(dateOfBirth ? { dateOfBirth } : {}),
+      ...(email.trim() ? { email: email.trim() } : {}),
+      ...(memberSince ? { memberSince } : {}),
     };
 
     try {
@@ -99,7 +113,7 @@ export function UpdateMemberModal({ member, onClose, onUpdated }: UpdateMemberMo
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+      <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md md:max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             Editar Socio
@@ -119,127 +133,226 @@ export function UpdateMemberModal({ member, onClose, onUpdated }: UpdateMemberMo
             </div>
           )}
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Nombre *
-            </label>
-            <input
-              type="text"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
-            />
-          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+            {/* Left column — Personal info */}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Nombre *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
+                />
+              </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Apellido *
-            </label>
-            <input
-              type="text"
-              required
-              value={surname}
-              onChange={(e) => setSurname(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
-            />
-          </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Apellido *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={surname}
+                  onChange={(e) => setSurname(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
+                />
+              </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Teléfono(s)
-            </label>
-            <div className="space-y-2">
-              {phoneNumbers.map((phone, index) => (
-                <div key={index} className="flex gap-2">
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => handlePhoneChange(index, e.target.value)}
-                    placeholder="Número de teléfono"
-                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
-                  />
-                  {phoneNumbers.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => handleRemovePhone(index)}
-                      className="p-2 text-red-500 hover:text-red-700"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  )}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Teléfono(s)
+                </label>
+                <div className="space-y-2">
+                  {phoneNumbers.map((phone, index) => (
+                    <div key={index} className="flex gap-2">
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => handlePhoneChange(index, e.target.value)}
+                        placeholder="Número de teléfono"
+                        className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
+                      />
+                      {phoneNumbers.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemovePhone(index)}
+                          className="p-2 text-red-500 hover:text-red-700"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={handleAddPhone}
+                    className="inline-flex items-center text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+                  >
+                    + Añadir teléfono
+                  </button>
                 </div>
-              ))}
-              <button
-                type="button"
-                onClick={handleAddPhone}
-                className="inline-flex items-center text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-              >
-                + Añadir teléfono
-              </button>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Tipo de socio *
+                </label>
+                <select
+                  value={type}
+                  onChange={(e) => {
+                    setType(e.target.value as MemberType);
+                    setAcademyGroup('');
+                    setTeam('');
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
+                >
+                  {Object.entries(MEMBER_TYPE_LABELS).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {isAcademyBeginnerType && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Grupo de academia
+                  </label>
+                  <select
+                    value={academyGroup}
+                    onChange={(e) => setAcademyGroup(e.target.value as AcademyGroup | '')}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
+                  >
+                    <option value="">Seleccionar grupo</option>
+                    {Object.entries(ACADEMY_GROUP_LABELS).map(([value, label]) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {isCompetitionType && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Equipo
+                  </label>
+                  <select
+                    value={team}
+                    onChange={(e) => setTeam(e.target.value as Team | '')}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
+                  >
+                    <option value="">Seleccionar equipo</option>
+                    {Object.entries(TEAM_LABELS).map(([value, label]) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+
+            {/* Right column — Extended info */}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  DNI / Documento
+                </label>
+                <input
+                  type="text"
+                  value={idNumber}
+                  onChange={(e) => setIdNumber(e.target.value)}
+                  placeholder="12345678A"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="ejemplo@correo.com"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Dirección
+                </label>
+                <input
+                  type="text"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="Calle Mayor 10"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Ciudad
+                  </label>
+                  <input
+                    type="text"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    placeholder="Madrid"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Código postal
+                  </label>
+                  <input
+                    type="text"
+                    value={postalCode}
+                    onChange={(e) => setPostalCode(e.target.value)}
+                    placeholder="28001"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Fecha de nacimiento
+                  </label>
+                  <input
+                    type="date"
+                    value={dateOfBirth}
+                    onChange={(e) => setDateOfBirth(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Socio desde
+                  </label>
+                  <input
+                    type="date"
+                    value={memberSince}
+                    onChange={(e) => setMemberSince(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
+                  />
+                </div>
+              </div>
             </div>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Tipo de socio *
-            </label>
-            <select
-              value={type}
-              onChange={(e) => {
-                setType(e.target.value as MemberType);
-                setAcademyGroup('');
-                setTeam('');
-              }}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
-            >
-              {Object.entries(MEMBER_TYPE_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {isAcademyBeginnerType && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Grupo de academia
-              </label>
-              <select
-                value={academyGroup}
-                onChange={(e) => setAcademyGroup(e.target.value as AcademyGroup | '')}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
-              >
-                <option value="">Seleccionar grupo</option>
-                {Object.entries(ACADEMY_GROUP_LABELS).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {isCompetitionType && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Equipo
-              </label>
-              <select
-                value={team}
-                onChange={(e) => setTeam(e.target.value as Team | '')}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
-              >
-                <option value="">Seleccionar equipo</option>
-                {Object.entries(TEAM_LABELS).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
 
           <div className="pt-4 flex justify-end gap-3">
             <button
