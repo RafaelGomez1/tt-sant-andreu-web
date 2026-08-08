@@ -19,6 +19,7 @@ const ACADEMY_GROUP_LABELS: Record<AcademyGroup, string> = {
   MONDAY_7_8: 'Lunes 19-20h',
   WEDNESDAY_6_7: 'Miércoles 18-19h',
   WEDNESDAY_7_8: 'Miércoles 19-20h',
+  FRIDAY_6_7: 'Viernes 18-19h'
 };
 
 const TEAM_LABELS: Record<Team, string> = {
@@ -35,7 +36,7 @@ export function CreateMemberModal({ onClose, onCreated }: CreateMemberModalProps
   const [surname, setSurname] = useState('');
   const [phoneNumbers, setPhoneNumbers] = useState<string[]>(['']);
   const [type, setType] = useState<MemberType>('CASUAL');
-  const [academyGroup, setAcademyGroup] = useState<AcademyGroup | ''>('');
+  const [academyGroups, setAcademyGroups] = useState<AcademyGroup[]>([]);
   const [team, setTeam] = useState<Team | ''>('');
   const [idNumber, setIdNumber] = useState('');
   const [address, setAddress] = useState('');
@@ -82,7 +83,7 @@ export function CreateMemberModal({ onClose, onCreated }: CreateMemberModalProps
       surname: surname.trim(),
       phoneNumbers: filteredPhones,
       type,
-      ...(isAcademyBeginnerType && academyGroup ? { academyGroup: academyGroup as AcademyGroup } : {}),
+      ...(isAcademyBeginnerType && academyGroups.length > 0 ? { academyGroups } : {}),
       ...(isCompetitionType && team ? { team: team as Team } : {}),
       ...(idNumber.trim() ? { idNumber: idNumber.trim() } : {}),
       ...(address.trim() ? { address: address.trim() } : {}),
@@ -201,7 +202,7 @@ export function CreateMemberModal({ onClose, onCreated }: CreateMemberModalProps
                   value={type}
                   onChange={(e) => {
                     setType(e.target.value as MemberType);
-                    setAcademyGroup('');
+                    setAcademyGroups([]);
                     setTeam('');
                   }}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
@@ -216,21 +217,28 @@ export function CreateMemberModal({ onClose, onCreated }: CreateMemberModalProps
 
               {isAcademyBeginnerType && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Grupo de academia
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Grupo(s) de academia
                   </label>
-                  <select
-                    value={academyGroup}
-                    onChange={(e) => setAcademyGroup(e.target.value as AcademyGroup | '')}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
-                  >
-                    <option value="">Seleccionar grupo</option>
-                    {Object.entries(ACADEMY_GROUP_LABELS).map(([value, label]) => (
-                      <option key={value} value={value}>
+                  <div className="space-y-2">
+                    {(Object.entries(ACADEMY_GROUP_LABELS) as [AcademyGroup, string][]).map(([value, label]) => (
+                      <label key={value} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={academyGroups.includes(value)}
+                          onChange={(e) => {
+                            setAcademyGroups(
+                              e.target.checked
+                                ? [...academyGroups, value]
+                                : academyGroups.filter((g) => g !== value)
+                            );
+                          }}
+                          className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
                         {label}
-                      </option>
+                      </label>
                     ))}
-                  </select>
+                  </div>
                 </div>
               )}
 

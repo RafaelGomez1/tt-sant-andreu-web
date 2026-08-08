@@ -60,7 +60,7 @@ export function useMembers({ type, page, size, searchText, academyGroup, team, r
     }
 
     if (academyGroup) {
-      results = results.filter((member) => member.academyGroup === academyGroup);
+      results = results.filter((member) => member.academyGroups.includes(academyGroup));
     }
 
     if (team) {

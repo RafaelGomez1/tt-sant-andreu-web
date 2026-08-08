@@ -36,6 +36,7 @@ const GROUP_LABELS: Record<AcademyGroup, string> = {
   MONDAY_7_8: 'Lunes 19-20h',
   WEDNESDAY_6_7: 'Miércoles 18-19h',
   WEDNESDAY_7_8: 'Miércoles 19-20h',
+  FRIDAY_6_7: 'Viernes 18-19h'
 };
 
 const TEAM_LABELS: Record<Team, string> = {
@@ -152,7 +153,9 @@ export function MembersTable({
                   {Array.isArray(member.phoneNumbers) ? member.phoneNumbers.join(', ') : '—'}
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap hidden md:table-cell">
-                  {member.academyGroup ? GROUP_LABELS[member.academyGroup] : '—'}
+                  {member.academyGroups && member.academyGroups.length > 0
+                    ? member.academyGroups.map((g) => GROUP_LABELS[g]).join(', ')
+                    : '—'}
                 </td>
                 <td className="px-4 py-3 text-sm whitespace-nowrap hidden md:table-cell">
                   {member.team ? (

@@ -5,7 +5,7 @@ import { ApiError } from './errors';
 
 export type MemberType = 'CASUAL' | 'ACADEMY_BEGINNER' | 'ACADEMY_INTERMEDIATE' | 'COMPETITION';
 
-export type AcademyGroup = 'MONDAY_6_7' | 'MONDAY_7_8' | 'WEDNESDAY_6_7' | 'WEDNESDAY_7_8';
+export type AcademyGroup = 'MONDAY_6_7' | 'MONDAY_7_8' | 'WEDNESDAY_6_7' | 'WEDNESDAY_7_8' | 'FRIDAY_6_7';
 
 export type Team = 'TWO_A' | 'THREE_B';
 
@@ -17,7 +17,7 @@ export interface Member {
   surname: string;
   phoneNumbers: string[];
   type: MemberType;
-  academyGroup: AcademyGroup | null;
+  academyGroups: AcademyGroup[];
   team: Team | null;
   idNumber: string | null;
   address: string | null;
@@ -35,7 +35,7 @@ export interface MemberRequest {
   surname: string;
   phoneNumbers: string[];
   type: MemberType;
-  academyGroup?: AcademyGroup;
+  academyGroups?: AcademyGroup[];
   team?: Team;
   idNumber?: string;
   address?: string;
