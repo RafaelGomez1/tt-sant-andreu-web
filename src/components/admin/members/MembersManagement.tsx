@@ -9,7 +9,7 @@ import { useMembers } from '../../../hooks/useMembers';
 import { Member, MemberType, AcademyGroup, Team } from '../../../services/api/members';
 import { ErrorAlert } from '../../ui/ErrorAlert';
 
-const DEFAULT_PAGE_SIZE = 20;
+const DEFAULT_PAGE_SIZE = 100;
 
 export function MembersManagement() {
   const [selectedType, setSelectedType] = useState<MemberType | undefined>(undefined);

@@ -37,13 +37,13 @@ export function AcademyGroupCard({ group, members, academyType }: AcademyGroupCa
 
       <div className="px-6 py-4">
         {members.length > 0 ? (
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-6">
             {/* Column 1 */}
             <ul className="space-y-2">
               {column1.map((member) => (
                 <li 
                   key={member.id}
-                  className="text-sm text-gray-700 dark:text-gray-300"
+                  className="text-sm text-gray-700 dark:text-gray-300 text-justify"
                 >
                   {member.name} {member.surname}
                 </li>
@@ -54,7 +54,7 @@ export function AcademyGroupCard({ group, members, academyType }: AcademyGroupCa
               {column2.map((member) => (
                 <li 
                   key={member.id}
-                  className="text-sm text-gray-700 dark:text-gray-300"
+                  className="text-sm text-gray-700 dark:text-gray-300 text-justify"
                 >
                   {member.name} {member.surname}
                 </li>
