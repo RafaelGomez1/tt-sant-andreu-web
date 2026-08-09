@@ -13,6 +13,11 @@ export function AcademyGroupCard({ group, members, academyType }: AcademyGroupCa
   const currentCount = members.length;
   const isFull = currentCount >= maxCapacity;
 
+  // Split members into 2 columns
+  const columnSize = Math.ceil(maxCapacity / 2);
+  const column1 = members.slice(0, columnSize);
+  const column2 = members.slice(columnSize);
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
       <div className="px-6 py-4 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
@@ -32,16 +37,30 @@ export function AcademyGroupCard({ group, members, academyType }: AcademyGroupCa
 
       <div className="px-6 py-4">
         {members.length > 0 ? (
-          <ul className="space-y-2">
-            {members.map((member) => (
-              <li 
-                key={member.id}
-                className="text-gray-700 dark:text-gray-300 py-1 border-b border-gray-100 dark:border-gray-700 last:border-b-0"
-              >
-                {member.name} {member.surname}
-              </li>
-            ))}
-          </ul>
+          <div className="grid grid-cols-2 gap-4">
+            {/* Column 1 */}
+            <ul className="space-y-2">
+              {column1.map((member) => (
+                <li 
+                  key={member.id}
+                  className="text-sm text-gray-700 dark:text-gray-300"
+                >
+                  {member.name} {member.surname}
+                </li>
+              ))}
+            </ul>
+            {/* Column 2 */}
+            <ul className="space-y-2">
+              {column2.map((member) => (
+                <li 
+                  key={member.id}
+                  className="text-sm text-gray-700 dark:text-gray-300"
+                >
+                  {member.name} {member.surname}
+                </li>
+              ))}
+            </ul>
+          </div>
         ) : (
           <p className="text-gray-500 dark:text-gray-400 italic">No members in this slot</p>
         )}
