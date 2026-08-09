@@ -20,7 +20,8 @@ const ACADEMY_GROUP_LABELS: Record<AcademyGroup, string> = {
   MONDAY_7_8: 'Lunes 19-20h',
   WEDNESDAY_6_7: 'Miércoles 18-19h',
   WEDNESDAY_7_8: 'Miércoles 19-20h',
-  FRIDAY_6_7: 'Viernes 18-19h'
+  FRIDAY_6_7: 'Viernes 18-19h',
+  FRIDAY_7_8: 'Viernes 19-20h'
 };
 
 const TEAM_LABELS: Record<Team, string> = {

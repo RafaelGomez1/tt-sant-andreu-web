@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import { Member, MemberType, AcademyGroup, Team, AgeGroup } from '../../../services/api/members';
+import { formatAcademyGroups } from '../../../utils/groupFormatter';
 
 interface MembersTableProps {
   members: Member[];
@@ -15,7 +16,7 @@ interface MembersTableProps {
   onDelete: (member: Member) => void;
 }
 
-const PAGE_SIZE_OPTIONS = [10, 20, 50];
+const PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
 
 const TYPE_LABELS: Record<MemberType, string> = {
   CASUAL: 'Casual',
@@ -36,7 +37,8 @@ const GROUP_LABELS: Record<AcademyGroup, string> = {
   MONDAY_7_8: 'Lunes 19-20h',
   WEDNESDAY_6_7: 'Miércoles 18-19h',
   WEDNESDAY_7_8: 'Miércoles 19-20h',
-  FRIDAY_6_7: 'Viernes 18-19h'
+  FRIDAY_6_7: 'Viernes 18-19h',
+  FRIDAY_7_8: 'Viernes 19-20h'
 };
 
 const TEAM_LABELS: Record<Team, string> = {
@@ -119,16 +121,16 @@ export function MembersTable({
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden sm:table-cell">
                 Teléfono
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden md:table-cell">
+              <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden md:table-cell">
                 Grupo
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden md:table-cell">
+              <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden md:table-cell">
                 Equipo
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden lg:table-cell">
+              <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden xl:table-cell">
                 Email
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden lg:table-cell">
+              <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden xl:table-cell">
                 Edad
               </th>
               <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-12">
@@ -152,22 +154,20 @@ export function MembersTable({
                 <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap hidden sm:table-cell">
                   {Array.isArray(member.phoneNumbers) ? member.phoneNumbers.join(', ') : '—'}
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap hidden md:table-cell">
-                  {member.academyGroups && member.academyGroups.length > 0
-                    ? member.academyGroups.map((g) => GROUP_LABELS[g]).join(', ')
-                    : '—'}
+                <td className="px-3 py-3 text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap hidden md:table-cell">
+                  {formatAcademyGroups(member.academyGroups || [])}
                 </td>
-                <td className="px-4 py-3 text-sm whitespace-nowrap hidden md:table-cell">
+                <td className="px-3 py-3 text-sm whitespace-nowrap hidden md:table-cell">
                   {member.team ? (
                     <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${TEAM_COLORS[member.team]}`}>
                       {TEAM_LABELS[member.team]}
                     </span>
                   ) : '—'}
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap hidden lg:table-cell">
+                <td className="px-3 py-3 text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap hidden xl:table-cell">
                   {member.email ?? '—'}
                 </td>
-                <td className="px-4 py-3 text-sm whitespace-nowrap hidden lg:table-cell">
+                <td className="px-3 py-3 text-sm whitespace-nowrap hidden xl:table-cell">
                   {member.ageGroup ? (
                     <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${AGE_GROUP_COLORS[member.ageGroup]}`}>
                       {AGE_GROUP_LABELS[member.ageGroup]}
