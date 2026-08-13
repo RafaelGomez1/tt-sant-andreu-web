@@ -72,17 +72,17 @@ export function FinanceManagement() {
       {/* Total Balance Card */}
       <div className="mb-8">
         <div
-          className={`rounded-xl shadow-md p-8 border-2 ${getBalanceColor(
+          className={`rounded-xl shadow-md p-6 border-2 ${getBalanceColor(
             finance.totalBalance
           )}`}
         >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-center text-gray-600 dark:text-gray-400 font-medium mb-2">
-                Balance Total
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-baseline gap-3">
+              <p className="text-gray-600 dark:text-gray-400 font-medium">
+                Balance Total:
               </p>
               <p
-                className={`text-center text-4xl font-bold ${getTextColor(
+                className={`text-3xl font-bold ${getTextColor(
                   finance.totalBalance
                 )}`}
               >
@@ -91,9 +91,9 @@ export function FinanceManagement() {
             </div>
             <div>
               {finance.totalBalance >= 0 ? (
-                <TrendingUp className="w-12 h-12 text-green-500" />
+                <TrendingUp className="w-10 h-10 text-green-500 flex-shrink-0" />
               ) : (
-                <TrendingDown className="w-12 h-12 text-red-500" />
+                <TrendingDown className="w-10 h-10 text-red-500 flex-shrink-0" />
               )}
             </div>
           </div>
@@ -113,16 +113,23 @@ export function FinanceManagement() {
             </div>
           </div>
 
-          <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-6 border border-green-200 dark:border-green-800 mb-6">
-            <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">
-              Total de Ingresos
-            </p>
-            <p className="text-3xl font-bold text-green-700 dark:text-green-400">
-              {formatCurrency(finance.income.total)}
-            </p>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-              {finance.income.memberCount} socios
-            </p>
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-6 border border-green-200 dark:border-green-800">
+              <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">
+                Total de Ingresos
+              </p>
+              <p className="text-2xl font-bold text-green-700 dark:text-green-400">
+                {formatCurrency(finance.income.total)}
+              </p>
+            </div>
+            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-6 border border-green-200 dark:border-green-800">
+              <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">
+                Total de Socios
+              </p>
+              <p className="text-2xl font-bold text-green-700 dark:text-green-400">
+                {finance.income.memberCount}
+              </p>
+            </div>
           </div>
 
           <div className="space-y-3">
