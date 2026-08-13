@@ -5,6 +5,7 @@ import { AdminDashboard } from './AdminDashboard';
 import { AdminMenu, AdminSection } from './AdminMenu';
 import { MembersManagement } from './members/MembersManagement';
 import { AcademyManagement } from './academy/AcademyManagement';
+import { FinanceManagement } from './finance/FinanceManagement';
 import { useAuth } from '../../hooks/useAuth';
 
 export function AdminView() {
@@ -44,6 +45,7 @@ export function AdminView() {
       {section === 'bookings' && <AdminDashboard accessKey={accessKey} />}
       {section === 'members' && <MembersManagement />}
       {section === 'academy' && <AcademyManagement />}
+      {section === 'finance' && <FinanceManagement />}
     </div>
   );
 }

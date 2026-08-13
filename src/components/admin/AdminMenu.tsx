@@ -1,7 +1,7 @@
 import React from 'react';
-import { CalendarDays, Users, Briefcase } from 'lucide-react';
+import { CalendarDays, Users, Briefcase, BarChart3 } from 'lucide-react';
 
-export type AdminSection = 'menu' | 'bookings' | 'members' | 'academy';
+export type AdminSection = 'menu' | 'bookings' | 'members' | 'academy' | 'finance';
 
 interface AdminMenuProps {
   onNavigate: (section: AdminSection) => void;
@@ -50,6 +50,19 @@ export function AdminMenu({ onNavigate }: AdminMenuProps) {
           </span>
           <span className="text-sm text-gray-500 dark:text-gray-400 mt-2 text-center">
             Consultar miembros de los grupos de academia
+          </span>
+        </button>
+
+        <button
+          onClick={() => onNavigate('finance')}
+          className="flex flex-col items-center justify-center p-8 bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600"
+        >
+          <BarChart3 className="w-12 h-12 text-amber-500 mb-4" />
+          <span className="text-lg font-semibold text-gray-900 dark:text-white">
+            Finanzas
+          </span>
+          <span className="text-sm text-gray-500 dark:text-gray-400 mt-2 text-center">
+            Ver balance, ingresos y gastos previstos
           </span>
         </button>
       </div>
