@@ -102,7 +102,7 @@ export function AcademyManagement() {
       </div>
 
       {/* Academy slots grid */}
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {slots.map(slot => (
           <AcademyGroupCard
             key={slot.group}

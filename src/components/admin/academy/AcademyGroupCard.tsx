@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Download } from 'lucide-react';
 import { Member, AcademyGroup } from '../../../services/api/members';
 import { getMaxCapacity, getSlotDisplayName } from '../../../utils/academyUtils';
 import { downloadAcademyAssistanceDocument } from '../../../utils/academyAssistanceDocument';
@@ -37,7 +38,7 @@ export function AcademyGroupCard({ group, members, academyType }: AcademyGroupCa
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             {getSlotDisplayName(group)}
           </h3>
-          <div className="flex flex-col items-end gap-2">
+          <div className="flex items-center gap-2">
             <div className={`text-sm font-medium px-3 py-1 rounded-full ${
               isFull
                 ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
@@ -47,9 +48,11 @@ export function AcademyGroupCard({ group, members, academyType }: AcademyGroupCa
             </div>
             <button
               onClick={handleDownloadAssistanceDocument}
-              className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700 transition-colors"
+              title="Generar documento de asistencia"
+              aria-label="Generar documento de asistencia"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-blue-200 bg-white text-blue-600 transition-colors hover:bg-blue-50 dark:border-blue-800 dark:bg-gray-800 dark:text-blue-400 dark:hover:bg-gray-700"
             >
-              Generar asistencia
+              <Download className="h-4 w-4" />
             </button>
           </div>
         </div>
@@ -57,7 +60,7 @@ export function AcademyGroupCard({ group, members, academyType }: AcademyGroupCa
 
       <div className="px-6 py-4">
         {members.length > 0 ? (
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Column 1 */}
             <ul className="space-y-2">
               {column1.map((member) => (
