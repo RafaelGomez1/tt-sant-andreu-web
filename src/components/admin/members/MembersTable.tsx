@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useLayoutEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, MoreVertical, Pencil, Trash2 } from 'lucide-react';
-import { Member, MemberType, AcademyGroup, Team, AgeGroup } from '../../../services/api/members';
+import { Member, MemberType, Team, AgeGroup } from '../../../services/api/members';
 import { formatAcademyGroups } from '../../../utils/groupFormatter';
 
 interface MembersTableProps {
@@ -32,15 +33,6 @@ const TYPE_COLORS: Record<MemberType, string> = {
   ACADEMY_INTERMEDIATE: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
   COMPETITION: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
   COACH: 'bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-400',
-};
-
-const GROUP_LABELS: Record<AcademyGroup, string> = {
-  MONDAY_6_7: 'Lunes 18-19h',
-  MONDAY_7_8: 'Lunes 19-20h',
-  WEDNESDAY_6_7: 'Miércoles 18-19h',
-  WEDNESDAY_7_8: 'Miércoles 19-20h',
-  FRIDAY_6_7: 'Viernes 18-19h',
-  FRIDAY_7_8: 'Viernes 19-20h'
 };
 
 const TEAM_LABELS: Record<Team, string> = {
@@ -78,17 +70,80 @@ export function MembersTable({
   onDelete,
 }: MembersTableProps) {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number; placement: 'up' | 'down' } | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const triggerRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   useEffect(() => {
+    if (!openMenuId) {
+      return;
+    }
+
     const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setOpenMenuId(null);
+      const target = event.target as Node;
+      const trigger = triggerRefs.current[openMenuId];
+
+      if (trigger?.contains(target)) {
+        return;
       }
+
+      if (menuRef.current && menuRef.current.contains(target)) {
+        return;
+      }
+
+      setOpenMenuId(null);
     };
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [openMenuId]);
+
+  useLayoutEffect(() => {
+    if (!openMenuId) {
+      return;
+    }
+
+    const updateMenuPlacement = () => {
+      const trigger = triggerRefs.current[openMenuId];
+      const menu = menuRef.current;
+
+      if (!trigger || !menu) {
+        return;
+      }
+
+      const triggerRect = trigger.getBoundingClientRect();
+      const menuRect = menu.getBoundingClientRect();
+      const menuHeight = menuRect.height;
+      const menuWidth = menuRect.width;
+      const spacing = 8;
+      const spaceBelow = window.innerHeight - triggerRect.bottom - spacing;
+      const spaceAbove = triggerRect.top - spacing;
+      const shouldOpenUp = menuHeight > 0 ? spaceBelow < menuHeight && spaceAbove > spaceBelow : spaceBelow < 160 && spaceAbove > spaceBelow;
+      const top = shouldOpenUp
+        ? Math.max(spacing, triggerRect.top - menuHeight - spacing)
+        : Math.min(window.innerHeight - menuHeight - spacing, triggerRect.bottom + spacing);
+      const left = Math.min(
+        window.innerWidth - menuWidth - spacing,
+        Math.max(spacing, triggerRect.right - menuWidth)
+      );
+
+      setMenuPosition({
+        top,
+        left,
+        placement: shouldOpenUp ? 'up' : 'down',
+      });
+    };
+
+    const frameId = window.requestAnimationFrame(updateMenuPlacement);
+    window.addEventListener('resize', updateMenuPlacement);
+    window.addEventListener('scroll', updateMenuPlacement, true);
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      window.removeEventListener('resize', updateMenuPlacement);
+      window.removeEventListener('scroll', updateMenuPlacement, true);
+    };
+  }, [openMenuId, members.length]);
   if (loading) {
     return (
       <div className="flex justify-center py-12">
@@ -178,38 +233,55 @@ export function MembersTable({
                 </td>
                 <td className="px-4 py-3 text-sm whitespace-nowrap text-right relative">
                   <button
-                    onClick={() => setOpenMenuId(openMenuId === member.id ? null : member.id)}
+                    ref={(el) => {
+                      triggerRefs.current[member.id] = el;
+                    }}
+                    onClick={() => {
+                      setOpenMenuId((currentOpenMenuId) =>
+                        currentOpenMenuId === member.id ? null : member.id
+                      );
+                      setMenuPosition(null);
+                    }}
                     className="p-1 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
                     <MoreVertical className="w-4 h-4" />
                   </button>
-                  {openMenuId === member.id && (
-                    <div
-                      ref={menuRef}
-                      className="absolute right-8 top-2 z-10 w-44 bg-white dark:bg-gray-700 rounded-md shadow-lg ring-1 ring-black/5 dark:ring-white/10"
-                    >
-                      <button
-                        onClick={() => {
-                          setOpenMenuId(null);
-                          onEdit(member);
+                  {openMenuId === member.id &&
+                    createPortal(
+                      <div
+                        ref={menuRef}
+                        className="fixed z-50 w-44 max-h-64 overflow-y-auto bg-white dark:bg-gray-700 rounded-md shadow-lg ring-1 ring-black/5 dark:ring-white/10"
+                        style={{
+                          top: menuPosition?.top ?? 0,
+                          left: menuPosition?.left ?? 0,
+                          visibility: menuPosition ? 'visible' : 'hidden',
                         }}
-                        className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-t-md"
                       >
-                        <Pencil className="w-4 h-4 mr-2" />
-                        Editar info
-                      </button>
-                      <button
-                        onClick={() => {
-                          setOpenMenuId(null);
-                          onDelete(member);
-                        }}
-                        className="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-b-md"
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Eliminar socio
-                      </button>
-                    </div>
-                  )}
+                        <button
+                          onClick={() => {
+                            setOpenMenuId(null);
+                            setMenuPosition(null);
+                            onEdit(member);
+                          }}
+                          className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-t-md"
+                        >
+                          <Pencil className="w-4 h-4 mr-2" />
+                          Editar info
+                        </button>
+                        <button
+                          onClick={() => {
+                            setOpenMenuId(null);
+                            setMenuPosition(null);
+                            onDelete(member);
+                          }}
+                          className="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-b-md"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Eliminar socio
+                        </button>
+                      </div>,
+                      document.body
+                    )}
                 </td>
               </tr>
             ))}
