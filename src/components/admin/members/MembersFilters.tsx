@@ -1,4 +1,3 @@
-import React from 'react';
 import { Search } from 'lucide-react';
 import { MemberType, AcademyGroup, Team } from '../../../services/api/members';
 
@@ -18,6 +17,7 @@ const MEMBER_TYPE_LABELS: Record<MemberType, string> = {
   ACADEMY_BEGINNER: 'Iniciación',
   ACADEMY_INTERMEDIATE: 'Tecnificación',
   COMPETITION: 'Federado',
+  COACH: 'Entrenador',
 };
 
 const ACADEMY_GROUP_LABELS: Record<AcademyGroup, string> = {

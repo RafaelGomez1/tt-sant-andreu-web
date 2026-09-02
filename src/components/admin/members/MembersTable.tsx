@@ -23,6 +23,7 @@ const TYPE_LABELS: Record<MemberType, string> = {
   ACADEMY_BEGINNER: 'Iniciación',
   ACADEMY_INTERMEDIATE: 'Tecnificación',
   COMPETITION: 'Federado',
+  COACH: 'Entrenador',
 };
 
 const TYPE_COLORS: Record<MemberType, string> = {
@@ -30,6 +31,7 @@ const TYPE_COLORS: Record<MemberType, string> = {
   ACADEMY_BEGINNER: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
   ACADEMY_INTERMEDIATE: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
   COMPETITION: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
+  COACH: 'bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-400',
 };
 
 const GROUP_LABELS: Record<AcademyGroup, string> = {

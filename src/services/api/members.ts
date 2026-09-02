@@ -3,9 +3,9 @@ import { ApiError } from './errors';
 
 // Types
 
-export type MemberType = 'CASUAL' | 'ACADEMY_BEGINNER' | 'ACADEMY_INTERMEDIATE' | 'COMPETITION';
+export type MemberType = 'CASUAL' | 'ACADEMY_BEGINNER' | 'ACADEMY_INTERMEDIATE' | 'COMPETITION' | 'COACH';
 
-export type AcademyGroup = 'MONDAY_6_7' | 'MONDAY_7_8' | 'WEDNESDAY_6_7' | 'WEDNESDAY_7_8' | 'FRIDAY_6_7';
+export type AcademyGroup = 'MONDAY_6_7' | 'MONDAY_7_8' | 'WEDNESDAY_6_7' | 'WEDNESDAY_7_8' | 'FRIDAY_6_7' | 'FRIDAY_7_8';
 
 export type Team = 'TWO_A' | 'THREE_B';
 

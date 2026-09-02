@@ -12,6 +12,7 @@ const MEMBER_TYPE_LABELS: Record<MemberType, string> = {
   ACADEMY_BEGINNER: 'Iniciación',
   ACADEMY_INTERMEDIATE: 'Tecnificación',
   COMPETITION: 'Federado',
+  COACH: 'Entrenador',
 };
 
 const ACADEMY_GROUP_LABELS: Record<AcademyGroup, string> = {
