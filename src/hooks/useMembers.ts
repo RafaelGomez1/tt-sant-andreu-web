@@ -1,5 +1,13 @@
 import { useState, useEffect, useMemo } from 'react';
-import { searchMembers, MembersPage, MemberType, AcademyGroup, Team, Member } from '../services/api/members';
+import {
+  searchMembers,
+  MembersPage,
+  MemberType,
+  AcademyGroup,
+  Team,
+  Member,
+  filterMembers,
+} from '../services/api/members';
 
 interface UseMembersParams {
   type?: MemberType;
@@ -48,26 +56,7 @@ export function useMembers({ type, page, size, searchText, academyGroup, team, r
 
   const filteredContent: Member[] = useMemo(() => {
     if (!data) return [];
-    let results = data.content;
-
-    if (searchText.trim()) {
-      const lowerSearch = searchText.toLowerCase().trim();
-      results = results.filter(
-        (member) =>
-          member.name.toLowerCase().includes(lowerSearch) ||
-          member.surname.toLowerCase().includes(lowerSearch)
-      );
-    }
-
-    if (academyGroup) {
-      results = results.filter((member) => member.academyGroups.includes(academyGroup));
-    }
-
-    if (team) {
-      results = results.filter((member) => member.team === team);
-    }
-
-    return results;
+    return filterMembers(data.content, { searchText, academyGroup, team });
   }, [data, searchText, academyGroup, team]);
 
   return {

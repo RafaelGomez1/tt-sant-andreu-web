@@ -1,10 +1,13 @@
 import { useMemo } from 'react';
+import { Download } from 'lucide-react';
 import { Departure, MemberType, Team, AgeGroup } from '../../../services/api/members';
 import { formatAcademyGroups } from '../../../utils/groupFormatter';
 
 interface DeparturesTableProps {
   departures: Departure[];
   loading: boolean;
+  onExport: () => void;
+  exporting: boolean;
 }
 
 const TYPE_LABELS: Record<MemberType, string> = {
@@ -63,7 +66,7 @@ const getDateSortValue = (value: string): number => {
   return Number.isNaN(timestamp) ? 0 : timestamp;
 };
 
-export function DeparturesTable({ departures, loading }: DeparturesTableProps) {
+export function DeparturesTable({ departures, loading, onExport, exporting }: DeparturesTableProps) {
   const sortedDepartures = useMemo(
     () => [...departures].sort((left, right) => getDateSortValue(right.departureDate) - getDateSortValue(left.departureDate)),
     [departures]
@@ -91,6 +94,15 @@ export function DeparturesTable({ departures, loading }: DeparturesTableProps) {
         <span className="text-sm text-gray-600 dark:text-gray-400">
           {sortedDepartures.length} baja{sortedDepartures.length !== 1 ? 's' : ''} registrada{sortedDepartures.length !== 1 ? 's' : ''}
         </span>
+        <button
+          type="button"
+          onClick={onExport}
+          disabled={exporting || loading}
+          className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Download className="w-4 h-4 mr-2" />
+          {exporting ? 'Exportando...' : 'Exportar CSV'}
+        </button>
       </div>
 
       <div className="overflow-x-auto bg-white dark:bg-gray-800 shadow rounded-lg">

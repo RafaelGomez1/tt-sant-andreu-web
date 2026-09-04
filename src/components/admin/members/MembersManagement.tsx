@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { UserPlus } from 'lucide-react';
 import { MembersFilters } from './MembersFilters';
 import { MembersTable } from './MembersTable';
@@ -8,11 +8,124 @@ import { UpdateMemberModal } from './UpdateMemberModal';
 import { DeleteMemberModal } from './DeleteMemberModal';
 import { useMembers } from '../../../hooks/useMembers';
 import { useDepartures } from '../../../hooks/useDepartures';
-import { Member, MemberType, AcademyGroup, Team } from '../../../services/api/members';
+import {
+  Member,
+  MemberType,
+  AcademyGroup,
+  Team,
+  AgeGroup,
+  Departure,
+  filterMembers,
+  getAllMembers,
+  getDepartures,
+} from '../../../services/api/members';
 import { ErrorAlert } from '../../ui/ErrorAlert';
+import { downloadCsv } from '../../../utils/csv';
+import { formatAcademyGroups } from '../../../utils/groupFormatter';
 
 const DEFAULT_PAGE_SIZE = 100;
 type MembersViewTab = 'members' | 'departures';
+
+const MEMBER_TYPE_LABELS: Record<MemberType, string> = {
+  CASUAL: 'Casual',
+  ACADEMY_BEGINNER: 'Iniciación',
+  ACADEMY_INTERMEDIATE: 'Tecnificación',
+  COMPETITION: 'Federado',
+  COACH: 'Entrenador',
+};
+
+const TEAM_LABELS: Record<Team, string> = {
+  TWO_A: '2a A',
+  THREE_B: '3a B',
+};
+
+const AGE_GROUP_LABELS: Record<AgeGroup, string> = {
+  KIDS: 'Infantil',
+  SENIORS: 'Adulto',
+  RETIRED: 'Veterano',
+};
+
+const MEMBERS_EXPORT_HEADERS = [
+  'Nombre',
+  'Apellido',
+  'Tipo',
+  'Teléfono',
+  'Grupo',
+  'Equipo',
+  'Email',
+  'Edad',
+  'Grupo de edad',
+];
+
+const DEPARTURES_EXPORT_HEADERS = [
+  'Nombre',
+  'Apellido',
+  'Baja',
+  'Tipo',
+  'Teléfono',
+  'Grupo',
+  'Equipo',
+  'Socio desde',
+  'Email',
+  'Edad',
+  'Grupo de edad',
+];
+
+const formatDate = (value: string | null): string => {
+  if (!value) {
+    return '—';
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat('es-ES').format(date);
+};
+
+const getDateSortValue = (value: string): number => {
+  const timestamp = new Date(value).getTime();
+  return Number.isNaN(timestamp) ? 0 : timestamp;
+};
+
+const formatPhoneNumbers = (phoneNumbers: string[]): string =>
+  Array.isArray(phoneNumbers) && phoneNumbers.length > 0 ? phoneNumbers.join(', ') : '—';
+
+const formatAgeGroup = (ageGroup: AgeGroup | null): string =>
+  ageGroup ? AGE_GROUP_LABELS[ageGroup] : '—';
+
+const formatTeam = (team: Team | null): string => (team ? TEAM_LABELS[team] : '—');
+
+const formatMemberRows = (members: Member[]) =>
+  members.map((member) => [
+    member.name,
+    member.surname,
+    MEMBER_TYPE_LABELS[member.type],
+    formatPhoneNumbers(member.phoneNumbers),
+    formatAcademyGroups(member.academyGroups),
+    formatTeam(member.team),
+    member.email ?? '—',
+    member.age ?? '—',
+    formatAgeGroup(member.ageGroup),
+  ]);
+
+const formatDepartureRows = (departures: Departure[]) =>
+  [...departures]
+    .sort((left, right) => getDateSortValue(right.departureDate) - getDateSortValue(left.departureDate))
+    .map((departure) => [
+      departure.name,
+      departure.surname,
+      formatDate(departure.departureDate),
+      MEMBER_TYPE_LABELS[departure.type],
+      formatPhoneNumbers(departure.phoneNumbers),
+      formatAcademyGroups(departure.academyGroups),
+      formatTeam(departure.team),
+      formatDate(departure.memberSince),
+      departure.email ?? '—',
+      departure.age ?? '—',
+      formatAgeGroup(departure.ageGroup),
+    ]);
 
 export function MembersManagement() {
   const [activeTab, setActiveTab] = useState<MembersViewTab>('members');
@@ -26,6 +139,9 @@ export function MembersManagement() {
   const [editingMember, setEditingMember] = useState<Member | null>(null);
   const [deletingMember, setDeletingMember] = useState<Member | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [exportingMembers, setExportingMembers] = useState(false);
+  const [exportingDepartures, setExportingDepartures] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
 
   const { members, totalPages, totalElements, currentPage, loading, error } = useMembers({
     type: selectedType,
@@ -39,6 +155,10 @@ export function MembersManagement() {
   const { departures, loading: departuresLoading, error: departuresError } = useDepartures(activeTab === 'departures');
 
   const activeError = activeTab === 'members' ? error : departuresError;
+
+  useEffect(() => {
+    setExportError(null);
+  }, [activeTab]);
 
   const handleTypeChange = (type: MemberType | undefined) => {
     setSelectedType(type);
@@ -81,6 +201,42 @@ export function MembersManagement() {
     refresh();
   }, [refresh]);
 
+  const handleMembersExport = useCallback(async () => {
+    setExportError(null);
+    setExportingMembers(true);
+
+    try {
+      const allMembers = await getAllMembers(selectedType);
+      const filteredMembers = filterMembers(allMembers, {
+        searchText,
+        academyGroup: selectedGroup,
+        team: selectedTeam,
+      });
+
+      downloadCsv('socios.csv', MEMBERS_EXPORT_HEADERS, formatMemberRows(filteredMembers));
+    } catch (err) {
+      console.error('Error exporting members:', err);
+      setExportError('No se ha podido exportar el listado de socios. Inténtalo de nuevo.');
+    } finally {
+      setExportingMembers(false);
+    }
+  }, [selectedType, searchText, selectedGroup, selectedTeam]);
+
+  const handleDeparturesExport = useCallback(async () => {
+    setExportError(null);
+    setExportingDepartures(true);
+
+    try {
+      const currentDepartures = await getDepartures();
+      downloadCsv('bajas.csv', DEPARTURES_EXPORT_HEADERS, formatDepartureRows(currentDepartures));
+    } catch (err) {
+      console.error('Error exporting departures:', err);
+      setExportError('No se ha podido exportar el listado de bajas. Inténtalo de nuevo.');
+    } finally {
+      setExportingDepartures(false);
+    }
+  }, []);
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -122,6 +278,7 @@ export function MembersManagement() {
       </div>
 
       {activeError && <ErrorAlert message={activeError} />}
+      {exportError && <ErrorAlert message={exportError} />}
 
       {activeTab === 'members' ? (
         <>
@@ -147,12 +304,16 @@ export function MembersManagement() {
             loading={loading}
             onEdit={setEditingMember}
             onDelete={setDeletingMember}
+            onExport={handleMembersExport}
+            exporting={exportingMembers}
           />
         </>
       ) : (
         <DeparturesTable
           departures={departures}
           loading={departuresLoading}
+          onExport={handleDeparturesExport}
+          exporting={exportingDepartures}
         />
       )}
 

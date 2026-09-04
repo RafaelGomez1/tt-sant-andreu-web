@@ -81,6 +81,12 @@ export interface MemberSearchParams {
   size?: number;
 }
 
+export interface MemberFilters {
+  searchText?: string;
+  academyGroup?: AcademyGroup;
+  team?: Team;
+}
+
 export interface MemberError {
   code: string;
   description: string;
@@ -177,6 +183,46 @@ export async function searchMembers(params: MemberSearchParams = {}): Promise<Me
   }
 
   return response.json();
+}
+
+export function filterMembers(members: Member[], filters: MemberFilters = {}): Member[] {
+  let results = members;
+
+  if (filters.searchText?.trim()) {
+    const lowerSearch = filters.searchText.toLowerCase().trim();
+    results = results.filter(
+      (member) =>
+        member.name.toLowerCase().includes(lowerSearch) ||
+        member.surname.toLowerCase().includes(lowerSearch)
+    );
+  }
+
+  if (filters.academyGroup) {
+    const academyGroup = filters.academyGroup;
+    results = results.filter((member) => member.academyGroups.includes(academyGroup));
+  }
+
+  if (filters.team) {
+    results = results.filter((member) => member.team === filters.team);
+  }
+
+  return results;
+}
+
+export async function getAllMembers(type?: MemberType): Promise<Member[]> {
+  const firstPage = await searchMembers({ type, page: 0, size: 100 });
+
+  if (firstPage.totalPages <= 1) {
+    return firstPage.content;
+  }
+
+  const remainingPages = await Promise.all(
+    Array.from({ length: firstPage.totalPages - 1 }, (_, index) =>
+      searchMembers({ type, page: index + 1, size: 100 })
+    )
+  );
+
+  return [firstPage, ...remainingPages].flatMap((page) => page.content);
 }
 
 export async function getDepartures(): Promise<Departure[]> {
