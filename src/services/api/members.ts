@@ -30,6 +30,27 @@ export interface Member {
   ageGroup: AgeGroup | null;
 }
 
+export interface Departure {
+  id: string;
+  memberId: string;
+  name: string;
+  surname: string;
+  phoneNumbers: string[];
+  type: MemberType;
+  departureDate: string;
+  academyGroups: AcademyGroup[];
+  team: Team | null;
+  idNumber: string | null;
+  address: string | null;
+  city: string | null;
+  postalCode: string | null;
+  dateOfBirth: string | null;
+  email: string | null;
+  memberSince: string | null;
+  age: number | null;
+  ageGroup: AgeGroup | null;
+}
+
 export interface MemberRequest {
   name: string;
   surname: string;
@@ -138,6 +159,28 @@ export async function searchMembers(params: MemberSearchParams = {}): Promise<Me
 
   const query = searchParams.toString();
   const url = `${API_BASE_URL}/members${query ? `?${query}` : ''}`;
+
+  const response = await fetch(url, {
+    ...API_CONFIG.defaultOptions,
+    method: 'GET',
+    headers: API_CONFIG.headers,
+  });
+
+  if (!response.ok) {
+    let details;
+    try {
+      details = await response.json();
+    } catch {
+      // Ignore JSON parsing errors
+    }
+    throw ApiError.fromResponse(response, details);
+  }
+
+  return response.json();
+}
+
+export async function getDepartures(): Promise<Departure[]> {
+  const url = `${API_BASE_URL}/departures`;
 
   const response = await fetch(url, {
     ...API_CONFIG.defaultOptions,

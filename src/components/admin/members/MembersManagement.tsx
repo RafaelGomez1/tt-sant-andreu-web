@@ -2,16 +2,20 @@ import React, { useState, useCallback } from 'react';
 import { UserPlus } from 'lucide-react';
 import { MembersFilters } from './MembersFilters';
 import { MembersTable } from './MembersTable';
+import { DeparturesTable } from './DeparturesTable';
 import { CreateMemberModal } from './CreateMemberModal';
 import { UpdateMemberModal } from './UpdateMemberModal';
 import { DeleteMemberModal } from './DeleteMemberModal';
 import { useMembers } from '../../../hooks/useMembers';
+import { useDepartures } from '../../../hooks/useDepartures';
 import { Member, MemberType, AcademyGroup, Team } from '../../../services/api/members';
 import { ErrorAlert } from '../../ui/ErrorAlert';
 
 const DEFAULT_PAGE_SIZE = 100;
+type MembersViewTab = 'members' | 'departures';
 
 export function MembersManagement() {
+  const [activeTab, setActiveTab] = useState<MembersViewTab>('members');
   const [selectedType, setSelectedType] = useState<MemberType | undefined>(undefined);
   const [selectedGroup, setSelectedGroup] = useState<AcademyGroup | undefined>(undefined);
   const [selectedTeam, setSelectedTeam] = useState<Team | undefined>(undefined);
@@ -32,6 +36,9 @@ export function MembersManagement() {
     team: selectedTeam,
     refreshKey,
   });
+  const { departures, loading: departuresLoading, error: departuresError } = useDepartures(activeTab === 'departures');
+
+  const activeError = activeTab === 'members' ? error : departuresError;
 
   const handleTypeChange = (type: MemberType | undefined) => {
     setSelectedType(type);
@@ -80,40 +87,74 @@ export function MembersManagement() {
         <h2 className="text-xl font-bold text-gray-900 dark:text-white">
           Gestión de Socios
         </h2>
+        {activeTab === 'members' && (
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            <UserPlus className="w-4 h-4 mr-2" />
+            Nuevo Socio
+          </button>
+        )}
+      </div>
+
+      <div className="flex gap-3">
         <button
-          onClick={() => setShowCreateModal(true)}
-          className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          onClick={() => setActiveTab('members')}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            activeTab === 'members'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+          }`}
         >
-          <UserPlus className="w-4 h-4 mr-2" />
-          Nuevo Socio
+          Socios
+        </button>
+        <button
+          onClick={() => setActiveTab('departures')}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            activeTab === 'departures'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+          }`}
+        >
+          Bajas
         </button>
       </div>
 
-      {error && <ErrorAlert message={error} />}
+      {activeError && <ErrorAlert message={activeError} />}
 
-      <MembersFilters
-        selectedType={selectedType}
-        onTypeChange={handleTypeChange}
-        selectedGroup={selectedGroup}
-        onGroupChange={handleGroupChange}
-        selectedTeam={selectedTeam}
-        onTeamChange={handleTeamChange}
-        searchText={searchText}
-        onSearchChange={handleSearchChange}
-      />
+      {activeTab === 'members' ? (
+        <>
+          <MembersFilters
+            selectedType={selectedType}
+            onTypeChange={handleTypeChange}
+            selectedGroup={selectedGroup}
+            onGroupChange={handleGroupChange}
+            selectedTeam={selectedTeam}
+            onTeamChange={handleTeamChange}
+            searchText={searchText}
+            onSearchChange={handleSearchChange}
+          />
 
-      <MembersTable
-        members={members}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        totalElements={totalElements}
-        pageSize={pageSize}
-        onPageSizeChange={handlePageSizeChange}
-        onPageChange={setPage}
-        loading={loading}
-        onEdit={setEditingMember}
-        onDelete={setDeletingMember}
-      />
+          <MembersTable
+            members={members}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalElements={totalElements}
+            pageSize={pageSize}
+            onPageSizeChange={handlePageSizeChange}
+            onPageChange={setPage}
+            loading={loading}
+            onEdit={setEditingMember}
+            onDelete={setDeletingMember}
+          />
+        </>
+      ) : (
+        <DeparturesTable
+          departures={departures}
+          loading={departuresLoading}
+        />
+      )}
 
       {showCreateModal && (
         <CreateMemberModal
