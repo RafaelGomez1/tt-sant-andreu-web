@@ -46,43 +46,44 @@ const AGE_GROUP_LABELS: Record<AgeGroup, string> = {
 };
 
 const MEMBERS_EXPORT_HEADERS = [
+  'ID',
   'Nombre',
   'Apellido',
+  'Teléfonos',
   'Tipo',
-  'Teléfono',
-  'Grupo',
+  'Grupos de academia',
   'Equipo',
+  'DNI',
+  'Dirección',
+  'Ciudad',
+  'Código postal',
+  'Fecha de nacimiento',
   'Email',
+  'Socio desde',
   'Edad',
   'Grupo de edad',
 ];
 
 const DEPARTURES_EXPORT_HEADERS = [
+  'ID',
+  'ID socio',
   'Nombre',
   'Apellido',
-  'Baja',
+  'Teléfonos',
   'Tipo',
-  'Teléfono',
-  'Grupo',
+  'Fecha de baja',
+  'Grupos de academia',
   'Equipo',
-  'Socio desde',
+  'DNI',
+  'Dirección',
+  'Ciudad',
+  'Código postal',
+  'Fecha de nacimiento',
   'Email',
+  'Socio desde',
   'Edad',
   'Grupo de edad',
 ];
-
-const formatDate = (value: string | null): string => {
-  if (!value) {
-    return '—';
-  }
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat('es-ES').format(date);
-};
 
 const getDateSortValue = (value: string): number => {
   const timestamp = new Date(value).getTime();
@@ -90,23 +91,35 @@ const getDateSortValue = (value: string): number => {
 };
 
 const formatPhoneNumbers = (phoneNumbers: string[]): string =>
-  Array.isArray(phoneNumbers) && phoneNumbers.length > 0 ? phoneNumbers.join(', ') : '—';
+  Array.isArray(phoneNumbers) && phoneNumbers.length > 0 ? phoneNumbers.join(', ') : '';
 
 const formatAgeGroup = (ageGroup: AgeGroup | null): string =>
-  ageGroup ? AGE_GROUP_LABELS[ageGroup] : '—';
+  ageGroup ? AGE_GROUP_LABELS[ageGroup] : '';
 
-const formatTeam = (team: Team | null): string => (team ? TEAM_LABELS[team] : '—');
+const formatTeam = (team: Team | null): string => (team ? TEAM_LABELS[team] : '');
+
+const formatCsvDate = (value: string | null): string => value ?? '';
+
+const formatCsvAcademyGroups = (groups: AcademyGroup[]): string =>
+  groups.length > 0 ? formatAcademyGroups(groups) : '';
 
 const formatMemberRows = (members: Member[]) =>
   members.map((member) => [
+    member.id,
     member.name,
     member.surname,
-    MEMBER_TYPE_LABELS[member.type],
     formatPhoneNumbers(member.phoneNumbers),
-    formatAcademyGroups(member.academyGroups),
+    MEMBER_TYPE_LABELS[member.type],
+    formatCsvAcademyGroups(member.academyGroups),
     formatTeam(member.team),
-    member.email ?? '—',
-    member.age ?? '—',
+    member.idNumber ?? '',
+    member.address ?? '',
+    member.city ?? '',
+    member.postalCode ?? '',
+    formatCsvDate(member.dateOfBirth),
+    member.email ?? '',
+    formatCsvDate(member.memberSince),
+    member.age ?? '',
     formatAgeGroup(member.ageGroup),
   ]);
 
@@ -114,16 +127,23 @@ const formatDepartureRows = (departures: Departure[]) =>
   [...departures]
     .sort((left, right) => getDateSortValue(right.departureDate) - getDateSortValue(left.departureDate))
     .map((departure) => [
+      departure.id,
+      departure.memberId,
       departure.name,
       departure.surname,
-      formatDate(departure.departureDate),
-      MEMBER_TYPE_LABELS[departure.type],
       formatPhoneNumbers(departure.phoneNumbers),
-      formatAcademyGroups(departure.academyGroups),
+      MEMBER_TYPE_LABELS[departure.type],
+      formatCsvDate(departure.departureDate),
+      formatCsvAcademyGroups(departure.academyGroups),
       formatTeam(departure.team),
-      formatDate(departure.memberSince),
-      departure.email ?? '—',
-      departure.age ?? '—',
+      departure.idNumber ?? '',
+      departure.address ?? '',
+      departure.city ?? '',
+      departure.postalCode ?? '',
+      formatCsvDate(departure.dateOfBirth),
+      departure.email ?? '',
+      formatCsvDate(departure.memberSince),
+      departure.age ?? '',
       formatAgeGroup(departure.ageGroup),
     ]);
 
