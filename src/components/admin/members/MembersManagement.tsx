@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { UserPlus } from 'lucide-react';
+import { Download, UserPlus } from 'lucide-react';
 import { MembersFilters } from './MembersFilters';
 import { MembersTable } from './MembersTable';
 import { DeparturesTable } from './DeparturesTable';
@@ -264,13 +264,23 @@ export function MembersManagement() {
           Gestión de Socios
         </h2>
         {activeTab === 'members' && (
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <UserPlus className="w-4 h-4 mr-2" />
-            Nuevo Socio
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleMembersExport}
+              disabled={exportingMembers || loading}
+              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              {exportingMembers ? 'Exportando...' : 'Exportar CSV'}
+            </button>
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              <UserPlus className="w-4 h-4 mr-2" />
+              Nuevo Socio
+            </button>
+          </div>
         )}
       </div>
 
@@ -324,8 +334,6 @@ export function MembersManagement() {
             loading={loading}
             onEdit={setEditingMember}
             onDelete={setDeletingMember}
-            onExport={handleMembersExport}
-            exporting={exportingMembers}
           />
         </>
       ) : (
